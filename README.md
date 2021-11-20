@@ -45,8 +45,8 @@ Then the script starts to work, and when it finished, the Excel file would appea
 
 For any doubts about how to use the program, you can read the article of our web or see the demo video.
 
-- Explanatory article: https://juaristech.com/google-maps-data-scraper
-- Demo video: https://www.youtube.com/channel/UCAUKSLj_OR1PfguW2ODUD3Q
+- Explanatory article: https://juaristech.com/google-maps-scraper
+- Demo video: https://youtu.be/XX-u-eNkRFs
 
 ## Requirements
 
