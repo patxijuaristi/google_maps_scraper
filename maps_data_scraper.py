@@ -56,8 +56,11 @@ class GoogleMapsDataScraper:
             chrome_options.add_argument(self.configuracion['idioma'])
             s=Service(ChromeDriverManager().install())
             self.driver = webdriver.Chrome(service=s, options=chrome_options)
-            self.driver.get('https://www.google.com/')            
-            self.driver.find_element_by_xpath('//*[@id="L2AGLb"]').click()
+            self.driver.get('https://www.google.com/')
+            try:
+                self.driver.find_element_by_xpath('//*[@id="L2AGLb"]').click()
+            except:
+                pass
             time.sleep(2)
             self.driver.get('https://www.google.com/maps/')
             return True
@@ -94,7 +97,7 @@ class GoogleMapsDataScraper:
             if(self.isLoaded(kw) == False):
                 return None
             
-            divImg = self.driver.find_element_by_id('pane')
+            divImg = self.driver.find_element(By.XPATH, '//*[@id="pane"]/following-sibling::div')
             titulo = divImg.find_element_by_tag_name('h1').text
             lugar.nombre = titulo
             time.sleep(1)
@@ -154,7 +157,8 @@ class GoogleMapsDataScraper:
             return ''
     
     def isLoaded(self, kw):
-        divImg = self.driver.find_element_by_id('pane')
+        #divImg = self.driver.find_element_by_id('pane')
+        divImg = self.driver.find_element(By.XPATH, '//*[@id="pane"]/following-sibling::div')
         titulo = divImg.find_elements_by_tag_name('h1')
         vacio = True
         for a in titulo:
