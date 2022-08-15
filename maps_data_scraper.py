@@ -58,7 +58,7 @@ class GoogleMapsDataScraper:
             self.driver = webdriver.Chrome(service=s, options=chrome_options)
             self.driver.get('https://www.google.com/')
             try:
-                self.driver.find_element_by_xpath('//*[@id="L2AGLb"]').click()
+                self.driver.find_element(By.XPATH, '//*[@id="L2AGLb"]').click()
             except:
                 pass
             time.sleep(2)
@@ -98,17 +98,22 @@ class GoogleMapsDataScraper:
                 return None
             
             divImg = self.driver.find_element(By.XPATH, '//*[@id="pane"]/following-sibling::div')
-            titulo = divImg.find_element_by_tag_name('h1').text
+            titulo = divImg.find_element(By.TAG_NAME, 'h1').text
             lugar.nombre = titulo
             time.sleep(1)
             try:
                 val = WebDriverWait(self.driver, 5).until(EC.presence_of_element_located((By.XPATH, '//*[contains(@aria-label, "'+self.configuracion['textoEstrellas']+'")]')))
-                valoraciones = val.get_attribute("aria-label")            
-                estrellas = valoraciones.replace(self.configuracion['textoEstrellas'],'').replace(' ','')
-            
-                val = self.driver.find_element_by_xpath('//*[contains(@aria-label, "'+self.configuracion['textoReviews']+'")]')
-                valoraciones = val.get_attribute("aria-label")            
-                numResenas = valoraciones.replace(self.configuracion['textoReviews'],'').replace(' ','')
+                if '(' in val.text and ')' in val.text:
+                    dividido = val.text.replace(')','').split('(')
+                    estrellas = dividido[0]
+                    numResenas = dividido[1]
+                else:
+                    valoraciones = val.get_attribute("aria-label")
+                    estrellas = valoraciones.replace(self.configuracion['textoEstrellas'],'').replace(' ','')
+                
+                    val = self.driver.find_element(By.XPATH, '//*[contains(@aria-label, "'+self.configuracion['textoReviews']+'")]')
+                    valoraciones = val.get_attribute("aria-label")            
+                    numResenas = valoraciones.replace(self.configuracion['textoReviews'],'').replace(' ','')
                 
                 lugar.estrellas = self.checkValoraciones(estrellas)
                 lugar.resenas = self.checkValoraciones(numResenas)
@@ -117,8 +122,9 @@ class GoogleMapsDataScraper:
                 pass
             
             try:
-                imgSrc = divImg.find_element_by_tag_name('img').get_attribute("src")
-                if(not 'gstatic' in imgSrc):
+                imgSrc = divImg.find_element(By.XPATH, '//img[@decoding="async"]').get_attribute("src")
+                #imgSrc = divImg.find_element(By.TAG_NAME, 'img').get_attribute("src")
+                if not 'gstatic' in imgSrc or not 'streetviewpixels' in imgSrc :
                     urllib.request.urlretrieve(imgSrc, self.imgOutput+self.quitarTildes(kw.replace('º','').replace('.','').replace(' ','-').replace('/','-')).lower()+'.jpg')
             except Exception as e:
                 print(e)
@@ -141,14 +147,14 @@ class GoogleMapsDataScraper:
     
     def buscar_xpath(self, xpath):
         try:
-            resultado = self.driver.find_element_by_xpath(xpath).text
+            resultado = self.driver.find_element(By.XPATH, xpath).text
             return resultado
         except:
             return ''
     
     def getHorario(self):
         try:
-            horario = self.driver.find_element_by_xpath('//*[contains(@aria-label, "'+self.configuracion['textoHorario']+'")]').get_attribute('aria-label')
+            horario = self.driver.find_element(By.XPATH, '//*[contains(@aria-label, "'+self.configuracion['textoHorario']+'")]').get_attribute('aria-label')
             horario = horario.replace(self.configuracion['remplazarHorario'][0], '')
             horario = horario.replace(self.configuracion['remplazarHorario'][1], '')
             horario = horario.replace(self.configuracion['remplazarHorario'][2], '\n')
@@ -159,15 +165,15 @@ class GoogleMapsDataScraper:
     def isLoaded(self, kw):
         #divImg = self.driver.find_element_by_id('pane')
         divImg = self.driver.find_element(By.XPATH, '//*[@id="pane"]/following-sibling::div')
-        titulo = divImg.find_elements_by_tag_name('h1')
+        titulo = divImg.find_elements(By.TAG_NAME, 'h1')
         vacio = True
         for a in titulo:
             if(a.text != ''):
                 return True
         if(vacio):
             try:
-                resultados = self.driver.find_element_by_xpath('//div[contains(@aria-label, "'+kw+'")]')
-                enlace = resultados.find_element_by_tag_name('a')
+                resultados = self.driver.find_element(By.XPATH, '//div[contains(@aria-label, "'+kw+'")]')
+                enlace = resultados.find_element(By.TAG_NAME, 'a')
                 enlace.click()
                 time.sleep(3)
                 return True
