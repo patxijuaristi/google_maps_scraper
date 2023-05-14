@@ -1,63 +1,35 @@
-# Google Maps / Google My Business Scraper 🌎📊
+# Google Maps Scraper
 
-This is script is a scraping script developed with Python and its automation library Selenium. **Consists of reading a list of keywords, searching them in the Google Maps search, and getting its data and cover image**.
+![Google Maps Scraper CSV Result](./img/example_result.png)
 
-The script goes one by one searching for the keyword, and storing the data in a list, to finally export it to an Excel file located in the folder specified by the user when running the script.
+This is a Python script that allows you to scrape information from Google Maps, including business names, addresses, phone numbers, websites, ratings, and reviews. The script can be configured to search for specific queries and can scrape either the first page of results or all pages of results.
 
-In the presentation video I show the script running without hiding the Chrome window, and it can be seen quite clear the process that the script follows.
+## Installation
 
-However, although I have added [that version](build/maps_scraper_juaristech_windowed_demo.exe) in the build folder, the final version and the one it is in the source code, works without showing the Chrome window, because it works with 5 simultaneous threads to increase the speed and obtain the results faster.
-
-For now the script works only for Spanish and English languages, however, I can add more languages in the future.
-
-[![Google Maps Scraper](https://juaristech.com/wp-content/uploads/2021/11/google-maps-scraper-result.jpg)](https://juaristech.com/google-maps-scraper "JuarisTech")
-
-## How to Run It
-
-To execute this script you need to run it in the command prompt.
-
-```bash
-google_maps_scraper_juaristech.exe
+1. Clone Starter Template
+```
+git clone https://github.com/patxijuaristi/google_maps_scraper google-maps-scraper
+cd google-maps-scraper
+```
+2. Install dependencies
+```
+python -m pip install -r requirements.txt
+```
+3. Run Project
+```
+python main.py
 ```
 
-Then, some questions will appear, which are necessary to run the script:
+The script will start running and output progress updates to the console. When the scraper is complete, it will generate a CSV file named `finished.csv` in the `output` directory. The CSV file will contain the business name, address, phone number, website, rating, and review for each result.
 
-1. You will need to type "ES" for Spanish or "EN" for English.
+Additionaly, you don't have to configure the Selenium driver as it will automatically download the appropriate driver based on your Chrome browser version.
 
-    ```bash
-    [1] Introduce the language, (ES o EN): 
-    ```
-2. You will need to specify the folder to save the output Excel and images. For example: *D:\Projects\Spain\Madrid\output\\*
+## Configuration
 
-    ```bash
-    [2] Introduce the path to save the images:
-    ```
+- To specify the Google search queries to be used in the scraper, open the `src/scraper.py` file in your preferred text editor and update the `Task.queries` list with your desired queries.
 
-3. To finish, you need to specify where is located the *.txt* file with the keywords to search. For example: *D:\Projects\Spain\Madrid\places.txt*
+- To specify whether to scrape the first page of Google Maps results or all pages of results, open the `src/scraper.py` file and set the `Task.GET_FIRST_PAGE` variable to `True` or `False` as appropriate.
 
-    ```bash
-    [3] Introduce the path of the keywords txt file:
-    ```
+## Thanks
 
-Then the script starts to work, and when it finished, the Excel file would appear in the output folder.
-
----
-
-For any doubts about how to use the program, you can read the article of our web or see the demo video.
-
-- Explanatory article: https://juaristech.com/google-maps-scraper
-- Demo video: https://youtu.be/XX-u-eNkRFs
-
-## Requirements
-
-The used requirements are specified in the requierements.txt file. If you want to execute the *.py* script from python, you can install the dependencies with the next command:
-
-```bash
-pip install -r requirements.txt
-```
-
-## Contact
-
-- Website: [JuarisTech](https://juaristech.com/)
-- Email: admin@juaristech.com
-
+The Google Maps Scraper project uses the Bose Framework, a web scraping framework that is Swiss Army Knife for web scraping. I encourage you to learn about Bose Framework at https://www.omkar.cloud/bose/
