@@ -41,20 +41,42 @@ Then, some questions will appear, which are necessary to run the script:
 
 Then the script starts to work, and when it finished, the Excel file would appear in the output folder.
 
----
+## How to run the script in Python
+
+If you want to customize the script or just launch it with Python, you can follow this steps:
+
+First create a virtual environment and activate it:
+
+Windows:
+```bash
+virtualenv env
+.\env\Scripts\activate
+```
+
+Ubuntu:
+```bash
+python3 -m venv env
+source env/bin/activate
+```
+
+Then install the necessary requirements, which are are specified in the `requierements.txt` file.
+
+```bash
+pip install -r requirements.txt
+```
+
+And launch the main file:
+
+```bash
+python .\main_datos_maps.py
+```
+
+## Tutorial article and video
 
 For any doubts about how to use the program, you can read the article of our web or see the demo video.
 
 - Explanatory article: https://juaristech.com/google-maps-scraper
 - Demo video: https://youtu.be/XX-u-eNkRFs
-
-## Requirements
-
-The used requirements are specified in the requierements.txt file. If you want to execute the *.py* script from python, you can install the dependencies with the next command:
-
-```bash
-pip install -r requirements.txt
-```
 
 ## Contact
 

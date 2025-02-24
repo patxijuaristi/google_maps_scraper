@@ -2,6 +2,7 @@
 
 import random
 import time
+import re
 import urllib.request
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
@@ -56,15 +57,16 @@ class GoogleMapsDataScraper:
             chrome_options.add_argument(self.configuracion['idioma'])
             s=Service(ChromeDriverManager().install())
             self.driver = webdriver.Chrome(service=s, options=chrome_options)
-            self.driver.get('https://www.google.com/')
+            self.driver.get('https://www.google.com/maps/')
             try:
-                self.driver.find_element(By.XPATH, '//*[@id="L2AGLb"]').click()
+                boton_aceptar = self.wait_element('//*[@aria-label="Aceptar todo"]', 7)
+                boton_aceptar.click()
             except:
                 pass
             time.sleep(2)
-            self.driver.get('https://www.google.com/maps/')
             return True
-        except:
+        except Exception as e:
+            print(e)
             print('Error with the Chrome Driver')
             return False
     
@@ -102,7 +104,8 @@ class GoogleMapsDataScraper:
             lugar.nombre = titulo
             time.sleep(1)
             try:
-                val = WebDriverWait(self.driver, 5).until(EC.presence_of_element_located((By.XPATH, '//*[contains(@aria-label, "'+self.configuracion['textoEstrellas']+'")]')))
+                val = WebDriverWait(self.driver, 5).until(EC.presence_of_element_located((By.XPATH, '//*[contains(@aria-label, "'+
+                                                                                          self.configuracion['textoEstrellas']+'") and @role="img"]')))
                 if '(' in val.text and ')' in val.text:
                     dividido = val.text.replace(')','').split('(')
                     estrellas = dividido[0]
@@ -125,17 +128,47 @@ class GoogleMapsDataScraper:
                 imgSrc = divImg.find_element(By.XPATH, '//img[@decoding="async"]').get_attribute("src")
                 #imgSrc = divImg.find_element(By.TAG_NAME, 'img').get_attribute("src")
                 if not 'gstatic' in imgSrc or not 'streetviewpixels' in imgSrc :
-                    urllib.request.urlretrieve(imgSrc, self.imgOutput+self.quitarTildes(kw.replace('º','').replace('.','').replace(' ','-').replace('/','-')).lower()+'.jpg')
+                    filename = kw.lower()
+                    filename = self.quitarTildes(filename)
+                    filename = re.sub(r'[^\w\s-]', '', filename)
+                    filename = filename.replace(' ', '-')
+                    filename = re.sub(r'-+', '-', filename)
+
+                    full_path = f"{self.imgOutput}{filename}.jpg"
+                    urllib.request.urlretrieve(imgSrc, full_path)
             except Exception as e:
                 print(e)
-                print('No se ha podido obtener la imagen')
+                print('Unable to obtain the image')
                 pass
             
-            lugar.categoria = self.buscar_xpath('//*[@jsaction="pane.rating.category"]')
-            lugar.direccion = self.buscar_xpath('//*[contains(@aria-label, "'+self.configuracion['textoDireccion']+'")]')
-            lugar.web = self.buscar_xpath('//*[contains(@aria-label, "'+self.configuracion['textoWeb']+'")]')
-            lugar.telefono = self.buscar_xpath('//*[contains(@aria-label, "'+self.configuracion['textoTelefono']+'")]')
-            lugar.pluscode = self.buscar_xpath('//*[contains(@aria-label, "'+self.configuracion['textoPlusCode']+'")]')
+            try:
+                lugar.categoria = self.buscar_xpath('//button[contains(@jsaction, "pane.") and contains(@jsaction, ".category")]')
+            except:
+                lugar.categoria = ''
+
+            try:
+                direccion_label = self.driver.find_element(By.XPATH, '//*[contains(@aria-label, "' + self.configuracion['textoDireccion'] + '")]').get_attribute('aria-label')
+                lugar.direccion = direccion_label.replace(self.configuracion['textoDireccion'], "").strip()
+            except:
+                lugar.direccion = ''
+
+            try:
+                web_label = self.driver.find_element(By.XPATH, '//*[contains(@aria-label, "' + self.configuracion['textoWeb'] + '")]').get_attribute('aria-label')
+                lugar.web = web_label.replace(self.configuracion['textoWeb'], "").strip()
+            except:
+                lugar.web = ''
+
+            try:
+                telefono_label = self.driver.find_element(By.XPATH, '//*[contains(@aria-label, "' + self.configuracion['textoTelefono'] + '")]').get_attribute('aria-label')
+                lugar.telefono = telefono_label.replace(self.configuracion['textoTelefono'], "").strip()
+            except:
+                lugar.telefono = ''
+
+            try:
+                pluscode_label = self.driver.find_element(By.XPATH, '//*[contains(@aria-label, "' + self.configuracion['textoPlusCode'] + '")]').get_attribute('aria-label')
+                lugar.pluscode = pluscode_label.replace(self.configuracion['textoPlusCode'], "").strip()
+            except:
+                lugar.pluscode = ''
             
             lugar.horario = self.getHorario()
             
@@ -151,6 +184,13 @@ class GoogleMapsDataScraper:
             return resultado
         except:
             return ''
+    
+    def wait_element(self, xpath, time):
+        try:
+            return WebDriverWait(self.driver, time).until(EC.presence_of_element_located((By.XPATH, xpath)))
+        except Exception as e:
+            print(f"Error waiting for element: {xpath} - {e}")
+            return None
     
     def getHorario(self):
         try:

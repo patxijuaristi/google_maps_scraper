@@ -4,7 +4,6 @@
 from exportarDatos import ExportarDatosMaps
 from maps_data_scraper import GoogleMapsDataScraper
 from threading import Thread
-import sys
 import os
 
 def split_list(a, n):
@@ -21,19 +20,21 @@ def scrapearMaps(idioma, lista, outputFolder, resultados, hilo):
         lugar = scraper.scrapearDatos(l)
         
         if(lugar != None):
-            print('Hilo nº '+str(hilo)+' ' +str(cont) + '/' + str(len(lista)) + ' - OK - ' + l)
+            print('Thread nº '+str(hilo)+' ' +str(cont) + '/' + str(len(lista)) + ' - OK - ' + l)
             listaLugares.append(lugar)
         else:
-            print('Hilo nº '+str(hilo)+' ' +str(cont) + '/' + str(len(lista)) + ' - ERROR - ' + l)
+            print('Thread nº '+str(hilo)+' ' +str(cont) + '/' + str(len(lista)) + ' - ERROR - ' + l)
         cont +=1
     
     resultados[hilo] = listaLugares
+    scraper.endDriver()
+
 def mainGoogleMaps(idioma, ficheroKw, outputFolder):
     archivo = open(ficheroKw,'r', encoding='utf-8')
     listaF = archivo.read().splitlines()
     archivo.close()
 
-    hilos = 5
+    hilos = 4
     listaHilos = [None] * hilos
     listaResultados = [None] * hilos
     divididos = split_list(listaF, hilos)
